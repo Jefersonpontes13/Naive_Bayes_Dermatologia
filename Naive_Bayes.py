@@ -4,12 +4,37 @@ from numpy import array
 import pandas as pd
 
 
-def mat_covarience(m):
-    m_c = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
+def mean(x):
+    if len(x.shape) == 1:
+        return sum(x) / len(x)
+
+    return [sum(x.T[n]) / x.T[n].shape[0] for n in range(x.shape[1])]
+
+
+def mat_corelation(m):
+    m_cor = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
     for x in range(m.shape[1]):
         for y in range(m.shape[1]):
-            m_c[x][y] = covariance(m.T[x], m.T[y])
-    return m_c
+            m_cor[x][y] = correlation(m.T[x], m.T[y])
+    return m_cor
+
+
+def correlation(x, y):
+    if x.shape[0] != y.shape[0]:
+        return None
+    cor = np.zeros(x.shape[0])
+
+    for el in range(x.shape[0]):
+        cor[el] = x[el] * y[el]
+    return sum(cor) / x.shape[0]
+
+
+def mat_covarience(m):
+    m_cov = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
+    for x in range(m.shape[1]):
+        for y in range(m.shape[1]):
+            m_cov[x][y] = covariance(m.T[x], m.T[y])
+    return m_cov
 
 
 def covariance(x, y):
@@ -92,4 +117,10 @@ if __name__ == '__main__':
          "class": data.T[34]
          }
     )
-    data = data.T[:34]
+    atributos = data.T[:34]
+    classes = data.T[34:]
+
+    vet_media_atr = mean(atributos)
+    vet_variancia_atr = variance(atributos)
+    mat_covariancia = mat_covarience(atributos)
+    mat_correlacao = mat_corelation(atributos)
