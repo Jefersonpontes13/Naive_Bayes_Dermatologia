@@ -2,68 +2,94 @@
 import numpy as np
 from numpy import array
 import pandas as pd
+from math import sqrt
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.colors import BoundaryNorm
+from matplotlib.ticker import MaxNLocator
+from sklearn.utils import shuffle
 
+def mean(v):
+    if len(v.shape) == 1:
+        return sum(v) / len(v)
 
-def mean(x):
-    if len(x.shape) == 1:
-        return sum(x) / len(x)
-
-    return [sum(x.T[n]) / x.T[n].shape[0] for n in range(x.shape[1])]
+    return array([sum(v.T[n]) / v.T[n].shape[0] for n in range(v.shape[1])])
 
 
 def mat_corelation(m):
     m_cor = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
-    for x in range(m.shape[1]):
-        for y in range(m.shape[1]):
-            m_cor[x][y] = correlation(m.T[x], m.T[y])
+    for e_x in range(m.shape[1]):
+        for e_y in range(m.shape[1]):
+            m_cor[e_x][e_y] = round(abs(covariance(m.T[e_x], m.T[e_y]) /
+                                        sqrt(variance(m.T[e_x]) * variance(m.T[e_y]))), 1)
     return m_cor
-
-
-def correlation(x, y):
-    if x.shape[0] != y.shape[0]:
-        return None
-    cor = np.zeros(x.shape[0])
-
-    for el in range(x.shape[0]):
-        cor[el] = x[el] * y[el]
-    return sum(cor) / x.shape[0]
 
 
 def mat_covarience(m):
     m_cov = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
-    for x in range(m.shape[1]):
-        for y in range(m.shape[1]):
-            m_cov[x][y] = covariance(m.T[x], m.T[y])
+    for e_x in range(m.shape[1]):
+        for e_y in range(m.shape[1]):
+            m_cov[e_x][e_y] = covariance(m.T[e_x], m.T[e_y])
     return m_cov
 
 
-def covariance(x, y):
-    if x.shape[0] != y.shape[0]:
+def covariance(v_x, v_y):
+    if v_x.shape[0] != v_y.shape[0]:
         return None
-    cov = np.zeros(x.shape[0])
+    cov = np.zeros(v_x.shape[0])
 
-    mx = x.mean()
-    my = y.mean()
-    for el in range(x.shape[0]):
-        cov[el] = (x[el] - mx) * (y[el] - my)
-    return sum(cov) / x.shape[0]
+    mx = v_x.mean()
+    my = v_y.mean()
+    for el in range(v_x.shape[0]):
+        cov[el] = (v_x[el] - mx) * (v_y[el] - my)
+    return sum(cov) / v_x.shape[0]
 
 
-def variance(x):
-    x = x.copy()
+def variance(v):
+    v = v.copy()
 
-    if len(x.shape) == 1:
-        mx = x.mean()
-        for n in range(x.shape[0]):
-            x[n] = abs(x[n] - mx) ** 2
-        return sum(x) / len(x)
+    if len(v.shape) == 1:
+        mx = v.mean()
+        for n in range(v.shape[0]):
+            v[n] = abs(v[n] - mx) ** 2
+        return sum(v) / len(v)
 
-    for c in range(x.shape[1]):
-        mx = x[c].mean()
-        for n in range(x.shape[0]):
-            x[c][n] = (x[c][n] - mx) ** 2
+    for c in range(v.shape[1]):
+        mx = v.T[c].mean()
+        for n in range(v.shape[0]):
+            v.T[c][n] = (v.T[c][n] - mx) ** 2
 
-    return [sum(x[n]) / x.shape[0] for n in range(x.shape[1])]
+    return array([sum(v.T[n]) / v.shape[0] for n in range(v.shape[1])])
+
+
+def z_score(dat):
+    v = dat.copy()
+    if len(dat.shape) == 1:
+        return [(v[n] - mean(dat) / sqrt(variance(dat))) for n in range(len(v))]
+
+    for c in range(v.shape[1]):
+        for n in range(v.shape[0]):
+            v.T[c][n] = (dat.T[c][n] - mean(dat.T[c])) / sqrt(variance(dat.T[c]))
+    return v
+
+
+'''Normaliza os dados (0, 1)'''
+
+
+def normalize_min_max(dat):
+    v_x = dat.copy()
+
+    if len(v_x.shape) == 1:
+        return [(v_x[n] - min(dat)) / (max(dat) - min(dat)) for n in range(len(dat))]
+
+    for c in range(v_x.shape[1]):
+        for n in range(v_x.shape[0]):
+            v_x.T[c][n] = (dat.T[c][n] - min(dat.T[c])) / (max(dat.T[c]) - min(dat.T[c]))
+    return v_x
+
+
+def classifier_naive_bayes(ts, atr_tr, cls_tr):
+    return None
 
 
 if __name__ == '__main__':
@@ -117,10 +143,61 @@ if __name__ == '__main__':
          "class": data.T[34]
          }
     )
-    atributos = data.T[:34]
-    classes = data.T[34:]
+    atributos = data.T[:34].T
+    atributos = normalize_min_max(atributos)    # Normaliza os dados
+    classes = data.T[34:].T
+
+    atributos, classes = shuffle(atributos, classes, random_state=0)
 
     vet_media_atr = mean(atributos)
     vet_variancia_atr = variance(atributos)
     mat_covariancia = mat_covarience(atributos)
     mat_correlacao = mat_corelation(atributos)
+
+    x = np.arange(mat_correlacao.shape[0])
+    y = np.arange(mat_correlacao.shape[0])
+
+    fig, ax = plt.subplots()
+    ax.pcolormesh(x, y, mat_correlacao)
+    fig.show()
+
+    k_k_f = 5
+    k_f_results = np.zeros(5)
+
+    '''Dados para treino e teste'''
+    atributos_teste = np.ones((atributos.shape[0]//k_k_f) * atributos.shape[1]).reshape(atributos.shape[0]//k_k_f,
+                                                                                        atributos.shape[1])
+    classes_teste = np.ones(atributos.shape[0]//k_k_f)
+
+    atributos_treino = np.ones((atributos.shape[0]//k_k_f) * (k_k_f - 1) * atributos.shape[1]).reshape(
+        (atributos.shape[0]//k_k_f) * (k_k_f - 1), atributos.shape[1])
+    classes_treino = np.ones((atributos.shape[0]//k_k_f) * (k_k_f - 1))
+
+    '''K-fold com 5 grupos'''
+    for k_f in range(5):
+
+        '''Segmenta por indexação os dados de treino e teste'''
+        atributos_teste = atributos[k_f * (atributos.shape[0]//k_k_f): (k_f + 1) * (atributos.shape[0]//k_k_f)]
+        classes_teste = classes[k_f * (atributos.shape[0]//k_k_f): (k_f + 1) * (atributos.shape[0]//k_k_f)]
+
+        if k_f == 0:
+            atributos_treino = atributos[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+            classes_treino = classes[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+        elif k_f == k_k_f - 1:
+            atributos_treino = atributos[:k_f * (atributos.shape[0]//k_k_f)]
+            classes_treino = classes[:k_f * (atributos.shape[0]//k_k_f)]
+        else:
+            atributos_treino[:k_f * (atributos.shape[0]//k_k_f)] = atributos[:k_f * (atributos.shape[0]//k_k_f)]
+            atributos_treino[k_f * (atributos.shape[0]//k_k_f):] = atributos[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+            classes_treino[:k_f * (atributos.shape[0]//k_k_f)] = classes[:k_f * (atributos.shape[0]//k_k_f)]
+            classes_treino[k_f * (atributos.shape[0]//k_k_f):] = classes[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+
+        '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
+        result = [classifier_naive_bayes(test, atributos_treino, classes_treino) for test in atributos_teste]
+
+        '''Verifica a taxa de erro e armazena em cada rodada do k-fold'''
+        k_f_results[k_f] = sum([0 == i for i in classes_teste == result]) / len(classes_teste)
+
+    '''Imprime a média das taxas de erro das rodadas do k-fold'''
+    print('\n NPC \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(mean(k_f_results)))
+    exit()
