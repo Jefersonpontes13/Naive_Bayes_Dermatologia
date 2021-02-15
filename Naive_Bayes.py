@@ -1,91 +1,10 @@
 """coding: utf-8"""
+import funcoes
 import numpy as np
 from numpy import array
 import pandas as pd
-from math import sqrt
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm
-from matplotlib.ticker import MaxNLocator
 from sklearn.utils import shuffle
-
-def mean(v):
-    if len(v.shape) == 1:
-        return sum(v) / len(v)
-
-    return array([sum(v.T[n]) / v.T[n].shape[0] for n in range(v.shape[1])])
-
-
-def mat_corelation(m):
-    m_cor = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
-    for e_x in range(m.shape[1]):
-        for e_y in range(m.shape[1]):
-            m_cor[e_x][e_y] = round(abs(covariance(m.T[e_x], m.T[e_y]) /
-                                        sqrt(variance(m.T[e_x]) * variance(m.T[e_y]))), 1)
-    return m_cor
-
-
-def mat_covarience(m):
-    m_cov = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
-    for e_x in range(m.shape[1]):
-        for e_y in range(m.shape[1]):
-            m_cov[e_x][e_y] = covariance(m.T[e_x], m.T[e_y])
-    return m_cov
-
-
-def covariance(v_x, v_y):
-    if v_x.shape[0] != v_y.shape[0]:
-        return None
-    cov = np.zeros(v_x.shape[0])
-
-    mx = v_x.mean()
-    my = v_y.mean()
-    for el in range(v_x.shape[0]):
-        cov[el] = (v_x[el] - mx) * (v_y[el] - my)
-    return sum(cov) / v_x.shape[0]
-
-
-def variance(v):
-    v = v.copy()
-
-    if len(v.shape) == 1:
-        mx = v.mean()
-        for n in range(v.shape[0]):
-            v[n] = abs(v[n] - mx) ** 2
-        return sum(v) / len(v)
-
-    for c in range(v.shape[1]):
-        mx = v.T[c].mean()
-        for n in range(v.shape[0]):
-            v.T[c][n] = (v.T[c][n] - mx) ** 2
-
-    return array([sum(v.T[n]) / v.shape[0] for n in range(v.shape[1])])
-
-
-def z_score(dat):
-    v = dat.copy()
-    if len(dat.shape) == 1:
-        return [(v[n] - mean(dat) / sqrt(variance(dat))) for n in range(len(v))]
-
-    for c in range(v.shape[1]):
-        for n in range(v.shape[0]):
-            v.T[c][n] = (dat.T[c][n] - mean(dat.T[c])) / sqrt(variance(dat.T[c]))
-    return v
-
-
-'''Normaliza os dados (0, 1)'''
-
-
-def normalize_min_max(dat):
-    v_x = dat.copy()
-
-    if len(v_x.shape) == 1:
-        return [(v_x[n] - min(dat)) / (max(dat) - min(dat)) for n in range(len(dat))]
-
-    for c in range(v_x.shape[1]):
-        for n in range(v_x.shape[0]):
-            v_x.T[c][n] = (dat.T[c][n] - min(dat.T[c])) / (max(dat.T[c]) - min(dat.T[c]))
-    return v_x
 
 
 def classifier_naive_bayes(ts, atr_tr, cls_tr):
