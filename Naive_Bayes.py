@@ -1,5 +1,5 @@
 """coding: utf-8"""
-import funcoes
+import funcoes as f
 import numpy as np
 from numpy import array
 import pandas as pd
@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
     data = array(data, dtype=np.float64)
 
+    '''
     data_Frame = pd.DataFrame(
         {"erythema": data.T[0],
          "scaling": data.T[1],
@@ -62,16 +63,18 @@ if __name__ == '__main__':
          "class": data.T[34]
          }
     )
+    '''
+
     atributos = data.T[:34].T
-    atributos = normalize_min_max(atributos)    # Normaliza os dados
+    atributos = f.z_score(atributos)    # Normaliza os dados
     classes = data.T[34:].T
 
     atributos, classes = shuffle(atributos, classes, random_state=0)
 
-    vet_media_atr = mean(atributos)
-    vet_variancia_atr = variance(atributos)
-    mat_covariancia = mat_covarience(atributos)
-    mat_correlacao = mat_corelation(atributos)
+    vet_media_atr = f.mean(atributos)
+    vet_variancia_atr = f.variance(atributos)
+    mat_covariancia = f.mat_covarience(atributos)
+    mat_correlacao = f.mat_corelation(atributos)
 
     x = np.arange(mat_correlacao.shape[0])
     y = np.arange(mat_correlacao.shape[0])
@@ -118,5 +121,5 @@ if __name__ == '__main__':
         k_f_results[k_f] = sum([0 == i for i in classes_teste == result]) / len(classes_teste)
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
-    print('\n NPC \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(mean(k_f_results)))
+    print('\n NPC \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(f.mean(k_f_results)))
     exit()
