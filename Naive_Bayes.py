@@ -1,12 +1,53 @@
 """coding: utf-8"""
 import funcoes as f
 import numpy as np
-from numpy import array
 import pandas as pd
 from sklearn.utils import shuffle
 
 
 def classifier_naive_bayes(ts, atr_tr, cls_tr):
+    cls = []
+    for el in range(len(cls_tr)):
+        if el == 0:
+            cls.append(cls_tr[el])
+        else:
+            if sum([cls_tr[el] == cls[i] for i in range(len(cls))]) == 0:
+                cls.append(cls_tr[el])
+
+    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=["erythema",
+                                                                  "scaling",
+                                                                  "definite_borders",
+                                                                  "itching",
+                                                                  "koebner_phenomenon",
+                                                                  "polygonal_papules",
+                                                                  "follicular_papules",
+                                                                  "oral_mucosal_involvement",
+                                                                  "knee_and_elbow_involvement",
+                                                                  "scalp_involvement",
+                                                                  "family_history",
+                                                                  "Age",
+                                                                  "melanin_incontinence",
+                                                                  "eosinophils_in_the_infiltrate",
+                                                                  "PNL_infiltrate",
+                                                                  "fibrosis_of_the_papillary_dermis,",
+                                                                  "exocytosis",
+                                                                  "acanthosis",
+                                                                  "hyperkeratosis",
+                                                                  "parakeratosis",
+                                                                  "clubbing_of_the_rete_ridges",
+                                                                  "elongation_of_the_rete_ridges",
+                                                                  "thinning_of_the_suprapapillary_epidermis",
+                                                                  "spongiform_pustule",
+                                                                  "munro_microabcess",
+                                                                  "focal_hypergranulosis",
+                                                                  "disappearance_of_the_granular_layer",
+                                                                  "vacuolisation_and_damage_of_basal_layer",
+                                                                  "spongiosis",
+                                                                  "saw_tooth_appearance_of_retes",
+                                                                  "follicular_horn_plug",
+                                                                  "perifollicular_parakeratosis",
+                                                                  "inflammatory_monoluclear_inflitrate",
+                                                                  "band_like_infiltrate", "clas"])
     return 0
 
 
@@ -14,7 +55,6 @@ if __name__ == '__main__':
 
     data = f.get_data("data_dermato_03.txt")
 
-    '''
     data_Frame = pd.DataFrame(
         {"erythema": data.T[0],
          "scaling": data.T[1],
@@ -28,8 +68,7 @@ if __name__ == '__main__':
          "scalp_involvement": data.T[9],
          "family_history": data.T[10],
          "Age": data.T[11],
-         "melanin": data.T[11],
-         "incontinence": data.T[12],
+         "melanin_incontinence": data.T[12],
          "eosinophils_in_the_infiltrate": data.T[13],
          "PNL_infiltrate": data.T[14],
          "fibrosis_of_the_papillary_dermis,": data.T[15],
@@ -51,24 +90,22 @@ if __name__ == '__main__':
          "perifollicular_parakeratosis": data.T[31],
          "inflammatory_monoluclear_inflitrate": data.T[32],
          "band_like_infiltrate": data.T[33],
-         "class": data.T[34]
+         "clas": data.T[34]
          }
     )
-    '''
 
     atributos = data.T[:34].T
-    atributos = f.z_score(atributos)    # Normaliza os dados
+
     classes = data.T[34:].T
 
     atributos, classes = shuffle(atributos, classes, random_state=0)
-
     k_k_f = 5
     k_f_results = np.zeros(5)
 
     '''Dados para treino e teste'''
-    atributos_teste = np.ones((atributos.shape[0]//k_k_f) * atributos.shape[1]).reshape(atributos.shape[0]//k_k_f,
-                                                                                        atributos.shape[1])
-    classes_teste = np.ones(atributos.shape[0]//k_k_f)
+    atributos_teste = np.ones((atributos.shape[0] // k_k_f) * atributos.shape[1]).reshape(atributos.shape[0] // k_k_f,
+                                                                                          atributos.shape[1])
+    classes_teste = np.ones(atributos.shape[0] // k_k_f)
 
     atributos_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k_k_f)) * atributos.shape[1]).reshape(
         (atributos.shape[0] - (atributos.shape[0] // k_k_f)), atributos.shape[1])
@@ -79,21 +116,22 @@ if __name__ == '__main__':
     for k_f in range(5):
 
         '''Segmenta por indexação os dados de treino e teste'''
-        atributos_teste = atributos[k_f * (atributos.shape[0]//k_k_f): (k_f + 1) * (atributos.shape[0]//k_k_f)]
-        classes_teste = classes[k_f * (atributos.shape[0]//k_k_f): (k_f + 1) * (atributos.shape[0]//k_k_f)]
+        atributos_teste = atributos[k_f * (atributos.shape[0] // k_k_f): (k_f + 1) * (atributos.shape[0] // k_k_f)]
+        classes_teste = classes[k_f * (atributos.shape[0] // k_k_f): (k_f + 1) * (atributos.shape[0] // k_k_f)]
 
         if k_f == 0:
-            atributos_treino = atributos[(k_f + 1) * (atributos.shape[0]//k_k_f):]
-            classes_treino = classes[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+            atributos_treino = atributos[(k_f + 1) * (atributos.shape[0] // k_k_f):]
+            classes_treino = classes[(k_f + 1) * (atributos.shape[0] // k_k_f):]
         elif (atributos.shape[0] % k_k_f) == 0 and k_f == k_k_f - 1:
-            atributos_treino = atributos[:k_f * (atributos.shape[0]//k_k_f)]
-            classes_treino = classes[:k_f * (atributos.shape[0]//k_k_f)]
+            atributos_treino = atributos[:k_f * (atributos.shape[0] // k_k_f)]
+            classes_treino = classes[:k_f * (atributos.shape[0] // k_k_f)]
         else:
-            atributos_treino[:k_f * (atributos.shape[0]//k_k_f)] = atributos[:k_f * (atributos.shape[0]//k_k_f)]
-            atributos_treino[k_f * (atributos.shape[0]//k_k_f):] = atributos[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+            atributos_treino[:k_f * (atributos.shape[0] // k_k_f)] = atributos[:k_f * (atributos.shape[0] // k_k_f)]
+            atributos_treino[k_f * (atributos.shape[0] // k_k_f):] = atributos[
+                                                                     (k_f + 1) * (atributos.shape[0] // k_k_f):]
 
-            classes_treino[:k_f * (atributos.shape[0]//k_k_f)] = classes[:k_f * (atributos.shape[0]//k_k_f)]
-            classes_treino[k_f * (atributos.shape[0]//k_k_f):] = classes[(k_f + 1) * (atributos.shape[0]//k_k_f):]
+            classes_treino[:k_f * (atributos.shape[0] // k_k_f)] = classes[:k_f * (atributos.shape[0] // k_k_f)]
+            classes_treino[k_f * (atributos.shape[0] // k_k_f):] = classes[(k_f + 1) * (atributos.shape[0] // k_k_f):]
 
         '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
         result = [classifier_naive_bayes(test, atributos_treino, classes_treino) for test in atributos_teste]
@@ -103,4 +141,4 @@ if __name__ == '__main__':
                                                  range(len(classes_teste))]]) / len(classes_teste)
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
-    print('\n NPC \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(f.mean(k_f_results)))
+    print('\nNaive Bayes Classifier \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(f.mean(k_f_results) * 100) + "%")

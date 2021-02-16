@@ -10,7 +10,6 @@ if __name__ == '__main__':
     data = f.get_data("data_dermato_03.txt")
 
     atributos = data.T[:34].T
-    atributos = f.z_score(atributos)    # Normaliza os dados
     classes = data.T[34:].T
 
     atributos, classes = shuffle(atributos, classes, random_state=0)
@@ -40,4 +39,5 @@ if __name__ == '__main__':
 
     ax.set_title("Matriz de Correlação")
     fig.tight_layout()
+    plt.savefig('correlacao.pdf')
     plt.show()

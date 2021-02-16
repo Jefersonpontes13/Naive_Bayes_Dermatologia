@@ -21,8 +21,8 @@ def mat_corelation(m):
     m_cor = np.zeros(m.shape[1] ** 2).reshape(m.shape[1], m.shape[1])
     for e_x in range(m.shape[1]):
         for e_y in range(m.shape[1]):
-            m_cor[e_x][e_y] = round(covariance(m.T[e_x], m.T[e_y]) / (standard_deviation(m.T[e_x]) *
-                                                                      standard_deviation(m.T[e_y])), 1)
+            m_cor[e_x][e_y] = covariance(m.T[e_x], m.T[e_y]) / (standard_deviation(m.T[e_x]) *
+                                                                      standard_deviation(m.T[e_y]))
     return m_cor
 
 
