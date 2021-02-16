@@ -116,3 +116,16 @@ def normalize_min_max(dat):
         for n in range(v_x.shape[0]):
             v_x.T[c][n] = (dat.T[c][n] - min(dat.T[c])) / (max(dat.T[c]) - min(dat.T[c]))
     return v_x
+
+
+def get_data(file_name):
+    file = open(file_name)
+    data = file.readlines()
+    file.close()
+
+    for line in range(len(data)):
+        data[line] = data[line].split()
+        for el in range(len(data[line])):
+            data[line][el] = int(data[line][el])
+
+    return array(data, dtype=np.float64)
