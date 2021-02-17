@@ -9,10 +9,12 @@ def classifier_naive_bayes(ts, atr_tr, cls_tr):
     cls = []
     for el in range(len(cls_tr)):
         if el == 0:
-            cls.append(cls_tr[el])
+            cls.append(cls_tr.T[0][el])
         else:
             if sum([cls_tr[el] == cls[i] for i in range(len(cls))]) == 0:
-                cls.append(cls_tr[el])
+                cls.append(cls_tr.T[0][el])
+
+    cls_p = np.array([cls, np.zeros(len(cls))])
 
     df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=["erythema",
                                                                   "scaling",
@@ -47,8 +49,28 @@ def classifier_naive_bayes(ts, atr_tr, cls_tr):
                                                                   "follicular_horn_plug",
                                                                   "perifollicular_parakeratosis",
                                                                   "inflammatory_monoluclear_inflitrate",
-                                                                  "band_like_infiltrate", "clas"])
-    return 0
+                                                                  "band_like_infiltrate",
+                                                                  "clas"])
+
+    mat_p = np.zeros(cls_p.shape[1] * atr_tr.shape[1]).reshape(cls_p.shape[1], atr_tr.shape[1])
+
+    for c in range(cls_p.shape[1]):
+        c_i = df[df.clas == c]
+        cls_p[1][c] = c_i.shape[0] / df.shape[0]
+        for a in range(atr_tr.shape[1]):
+            mat_p[c][a] = (sum([c_i.values[el][a] == ts[a] for el in range(c_i.shape[0])]) + 1) / (c_i.shape[0] + 1)
+
+    for c in range(cls_p.shape[1]):
+        for a in range(atr_tr.shape[1]):
+            cls_p[1][c] *= mat_p[c][a]
+
+    cl_tst = 0
+    for i in range(cls_p.shape[1]):
+        if i == 0:
+            cl_tst = 0
+        elif cls_p[0][i] > cls_p[0][cl_tst]:
+            cl_tst = i
+    return cls_p[0][cl_tst]
 
 
 if __name__ == '__main__':

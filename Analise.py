@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
 
-
 if __name__ == '__main__':
 
     data = f.get_data("data_dermato_03.txt")
@@ -26,7 +25,9 @@ if __name__ == '__main__':
         y[i] = str(y[i] + 1)
 
     fig, ax = plt.subplots()
-    im = ax.imshow(mat_correlacao)
+
+    im = ax.imshow(
+        [[abs(mat_correlacao[li][c]) for c in range(mat_correlacao.shape[1])] for li in range(mat_correlacao.shape[0])])
 
     ax.set_xticks(np.arange(len(x)))
     ax.set_yticks(np.arange(len(y)))
