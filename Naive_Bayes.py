@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.utils import shuffle
 
 
-def classifier_naive_bayes(ts, atr_tr, cls_tr):
+def naive_bayes(ts, atr_tr, cls_tr):
     cls = []
     for el in range(len(cls_tr)):
         if el == 0:
@@ -16,67 +16,33 @@ def classifier_naive_bayes(ts, atr_tr, cls_tr):
 
     cls_p = np.array([cls, np.zeros(len(cls))])
 
-    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=["erythema",
-                                                                  "scaling",
-                                                                  "definite_borders",
-                                                                  "itching",
-                                                                  "koebner_phenomenon",
-                                                                  "polygonal_papules",
-                                                                  "follicular_papules",
-                                                                  "oral_mucosal_involvement",
-                                                                  "knee_and_elbow_involvement",
-                                                                  "scalp_involvement",
-                                                                  "family_history",
-                                                                  "Age",
-                                                                  "melanin_incontinence",
-                                                                  "eosinophils_in_the_infiltrate",
-                                                                  "PNL_infiltrate",
-                                                                  "fibrosis_of_the_papillary_dermis,",
-                                                                  "exocytosis",
-                                                                  "acanthosis",
-                                                                  "hyperkeratosis",
-                                                                  "parakeratosis",
-                                                                  "clubbing_of_the_rete_ridges",
-                                                                  "elongation_of_the_rete_ridges",
-                                                                  "thinning_of_the_suprapapillary_epidermis",
-                                                                  "spongiform_pustule",
-                                                                  "munro_microabcess",
-                                                                  "focal_hypergranulosis",
-                                                                  "disappearance_of_the_granular_layer",
-                                                                  "vacuolisation_and_damage_of_basal_layer",
-                                                                  "spongiosis",
-                                                                  "saw_tooth_appearance_of_retes",
-                                                                  "follicular_horn_plug",
-                                                                  "perifollicular_parakeratosis",
-                                                                  "inflammatory_monoluclear_inflitrate",
-                                                                  "band_like_infiltrate",
-                                                                  "clas"])
+    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=i_atr)
 
     mat_p = np.zeros(cls_p.shape[1] * atr_tr.shape[1]).reshape(cls_p.shape[1], atr_tr.shape[1])
 
-    for c in range(cls_p.shape[1]):
-        c_i = df[df.clas == c]
-        cls_p[1][c] = c_i.shape[0] / df.shape[0]
+    for cl in range(cls_p.shape[1]):
+        c_i = df[df.clas == cls_p[0][cl]]
+        cls_p[1][cl] = c_i.shape[0] / df.shape[0]
         for a in range(atr_tr.shape[1]):
-            mat_p[c][a] = (sum([c_i.values[el][a] == ts[a] for el in range(c_i.shape[0])]) + 1) / (c_i.shape[0] + 1)
+            mat_p[cl][a] = (sum([c_i.values[el][a] == ts[a] for el in range(c_i.shape[0])]) + 1) / (c_i.shape[0] + 1)
 
-    for c in range(cls_p.shape[1]):
+    for cl in range(cls_p.shape[1]):
         for a in range(atr_tr.shape[1]):
-            cls_p[1][c] *= mat_p[c][a]
+            cls_p[1][cl] *= mat_p[cl][a]
 
     cl_tst = 0
     for i in range(cls_p.shape[1]):
-        if i == 0:
-            cl_tst = 0
-        elif cls_p[0][i] > cls_p[0][cl_tst]:
+        if cls_p[1][i] > cls_p[1][cl_tst]:
             cl_tst = i
+
     return cls_p[0][cl_tst]
 
 
 if __name__ == '__main__':
 
-    data = f.get_data("data_dermato_03.txt")
+    data_f = f.get_data("data_dermato_03.txt")
 
+    '''
     data_Frame = pd.DataFrame(
         {"erythema": data.T[0],
          "scaling": data.T[1],
@@ -115,52 +81,102 @@ if __name__ == '__main__':
          "clas": data.T[34]
          }
     )
+    '''
 
-    atributos = data.T[:34].T
+    #   Naive Bayes Classifier com todos os atributos
 
-    classes = data.T[34:].T
+    #   K - fold com 5 grupos
+    #   Taxa de erro:  0.55%
+
+    #   K - fold com 10 grupos
+    #   Taxa de erro: 0.28 %
+
+    #   K - fold com 20 grupos
+    #   Taxa de erro: 0.00 %
+
+    i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
+             '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
+    '''
+    #   Naive Bayes Classifier 
+    #   K-fold com 10 grupos
+    #   Taxa de erro:  0.82%
+    
+    i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
+             '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'clas']
+    '''
+
+    '''
+    #   Naive Bayes Classifier
+    #   K - fold com 5 grupos
+    #   Taxa de erro:  5.21%'''
+    '''
+    i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
+             '31', '34', 'clas']
+    
+
+    '''
+    #   i_atr = ['1', '2', '3', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
+    #   i_atr = ['2', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
+
+    data = []
+
+    for c in i_atr:
+        if c == 'clas':
+            data.append(data_f.T[data_f.shape[1] - 1])
+        else:
+            data.append(data_f.T[int(c) - 1])
+    data = np.array(data).T
+
+    atributos = data.T[:data.shape[1] - 1].T
+
+    classes = data.T[data.shape[1] - 1:].T
 
     atributos, classes = shuffle(atributos, classes, random_state=0)
-    k_k_f = 5
-    k_f_results = np.zeros(5)
+
+    #  Quantidade de grupos no K-fold
+    k = 20
 
     '''Dados para treino e teste'''
-    atributos_teste = np.ones((atributos.shape[0] // k_k_f) * atributos.shape[1]).reshape(atributos.shape[0] // k_k_f,
-                                                                                          atributos.shape[1])
-    classes_teste = np.ones(atributos.shape[0] // k_k_f)
+    atributos_teste = np.ones((atributos.shape[0] // k) * atributos.shape[1]).reshape(atributos.shape[0] // k,
+                                                                                      atributos.shape[1])
+    classes_teste = np.ones(atributos.shape[0] // k)
 
-    atributos_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k_k_f)) * atributos.shape[1]).reshape(
-        (atributos.shape[0] - (atributos.shape[0] // k_k_f)), atributos.shape[1])
+    atributos_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k)) * atributos.shape[1]).reshape(
+        (atributos.shape[0] - (atributos.shape[0] // k)), atributos.shape[1])
 
-    classes_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k_k_f)))
+    classes_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k)))
+
+
+    k_f_results = np.zeros(k)
 
     '''K-fold com 5 grupos'''
-    for k_f in range(5):
+    for k_f in range(k):
 
         '''Segmenta por indexação os dados de treino e teste'''
-        atributos_teste = atributos[k_f * (atributos.shape[0] // k_k_f): (k_f + 1) * (atributos.shape[0] // k_k_f)]
-        classes_teste = classes[k_f * (atributos.shape[0] // k_k_f): (k_f + 1) * (atributos.shape[0] // k_k_f)]
+        atributos_teste = atributos[k_f * (atributos.shape[0] // k): (k_f + 1) * (atributos.shape[0] // k)]
+        classes_teste = classes[k_f * (atributos.shape[0] // k): (k_f + 1) * (atributos.shape[0] // k)]
 
         if k_f == 0:
-            atributos_treino = atributos[(k_f + 1) * (atributos.shape[0] // k_k_f):]
-            classes_treino = classes[(k_f + 1) * (atributos.shape[0] // k_k_f):]
-        elif (atributos.shape[0] % k_k_f) == 0 and k_f == k_k_f - 1:
-            atributos_treino = atributos[:k_f * (atributos.shape[0] // k_k_f)]
-            classes_treino = classes[:k_f * (atributos.shape[0] // k_k_f)]
+            atributos_treino = atributos[(k_f + 1) * (atributos.shape[0] // k):]
+            classes_treino = classes[(k_f + 1) * (atributos.shape[0] // k):]
+        elif (atributos.shape[0] % k) == 0 and k_f == k - 1:
+            atributos_treino = atributos[:k_f * (atributos.shape[0] // k)]
+            classes_treino = classes[:k_f * (atributos.shape[0] // k)]
         else:
-            atributos_treino[:k_f * (atributos.shape[0] // k_k_f)] = atributos[:k_f * (atributos.shape[0] // k_k_f)]
-            atributos_treino[k_f * (atributos.shape[0] // k_k_f):] = atributos[
-                                                                     (k_f + 1) * (atributos.shape[0] // k_k_f):]
+            atributos_treino[:k_f * (atributos.shape[0] // k)] = atributos[:k_f * (atributos.shape[0] // k)]
+            atributos_treino[k_f * (atributos.shape[0] // k):] = atributos[
+                                                                     (k_f + 1) * (atributos.shape[0] // k):]
 
-            classes_treino[:k_f * (atributos.shape[0] // k_k_f)] = classes[:k_f * (atributos.shape[0] // k_k_f)]
-            classes_treino[k_f * (atributos.shape[0] // k_k_f):] = classes[(k_f + 1) * (atributos.shape[0] // k_k_f):]
+            classes_treino[:k_f * (atributos.shape[0] // k)] = classes[:k_f * (atributos.shape[0] // k)]
+            classes_treino[k_f * (atributos.shape[0] // k):] = classes[(k_f + 1) * (atributos.shape[0] // k):]
 
         '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
-        result = [classifier_naive_bayes(test, atributos_treino, classes_treino) for test in atributos_teste]
+        result = [naive_bayes(atributos_teste[t], atributos_treino, classes_treino)
+                  for t in range(atributos_teste.shape[0])]
 
         '''Verifica a taxa de erro e armazena em cada rodada do k-fold'''
         k_f_results[k_f] = sum([0 == i for i in [classes_teste[i] == result[i] for i in
                                                  range(len(classes_teste))]]) / len(classes_teste)
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
-    print('\nNaive Bayes Classifier \nK-fold com 10 grupos\n' + 'Taxa de erro: ' + str(f.mean(k_f_results) * 100) + "%")
+    print(f'\nNaive Bayes Classifier \nK-fold com {k} grupos\nTaxa de erro: {f.mean(k_f_results) * 100: .2f}%')
