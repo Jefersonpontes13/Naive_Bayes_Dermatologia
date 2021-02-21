@@ -1,6 +1,6 @@
 """coding: utf-8"""
 
-
+import funcoes as f
 import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
@@ -141,9 +141,13 @@ def cda(atr, cls, nw):
 if __name__ == '__main__':
 
     data_f = get_data("data_dermato_03.txt")
-
+    '''
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
+    
+    i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
+             '31', '34', 'clas']'''
+    i_atr = ['20', '22', 'clas']
 
     data = []
 
@@ -154,7 +158,7 @@ if __name__ == '__main__':
             data.append(data_f.T[int(c) - 1])
     data = np.array(data).T
 
-    #   data = f.z_score(data)
+    data = f.z_score(data)
     #   data = f.normalize_min_max(data)
     atributos = data.T[:data.shape[1] - 1].T
 

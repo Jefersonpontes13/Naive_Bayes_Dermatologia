@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
 
+'''Matriz de covariancia para o Naive Bayes, qué é a matriz diagonal das variancias'''
+
 
 def mat_cov_naive(m):
     m_cov = np.zeros(m.shape[0] ** 2).reshape(m.shape[0], m.shape[0])
@@ -14,6 +16,9 @@ def mat_cov_naive(m):
             else:
                 m_cov[e_x][e_y] = 0
     return m_cov
+
+
+'''Naive Bayes usando criterio MAP'''
 
 
 def naive_bayes_map(ts, atr_tr, cls_tr):
@@ -46,6 +51,9 @@ def naive_bayes_map(ts, atr_tr, cls_tr):
             cl_tst = i
 
     return cls_p[0][cl_tst]
+
+
+'''Naive Bayes, considerando apenas as probabilidades/teo bayes'''
 
 
 def naive_bayes_prob(ts, atr_tr, cls_tr):
@@ -85,25 +93,10 @@ if __name__ == '__main__':
 
     data_f = f.get_data("data_dermato_03.txt")
 
-    #   Naive Bayes Classifier com todos os atributos
-
-    #   K - fold com 5 grupos
-    #   Taxa de erro:  0.55%
-
-    #   K - fold com 10 grupos
-    #   Taxa de erro: 0.28 %
-
-    #   K - fold com 20 grupos
-    #   Taxa de erro: 0.00 %
-
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
-    '''
-
-    #   Naive Bayes Classifier 
-    #   K-fold com 10 grupos
-    #   Taxa de erro:  0.82%
     
+    '''  
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'clas']
     '''
@@ -115,8 +108,6 @@ if __name__ == '__main__':
     '''
     i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
              '31', '34', 'clas']
-
-    
     '''
     #   i_atr = ['1', '2', '3', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
     #   i_atr = ['2', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
@@ -129,7 +120,7 @@ if __name__ == '__main__':
         else:
             data.append(data_f.T[int(c) - 1])
     data = np.array(data).T
-    data = f.z_score(data)
+    #   data = f.z_score(data)
     #   data = f.normalize_min_max(data)
     atributos = data.T[:data.shape[1] - 1].T
 
@@ -149,7 +140,6 @@ if __name__ == '__main__':
         (atributos.shape[0] - (atributos.shape[0] // k)), atributos.shape[1])
 
     classes_treino = np.ones((atributos.shape[0] - (atributos.shape[0] // k)))
-
 
     k_f_results = np.zeros(k)
 
@@ -175,6 +165,14 @@ if __name__ == '__main__':
             classes_treino[k_f * (atributos.shape[0] // k):] = classes[(k_f + 1) * (atributos.shape[0] // k):]
 
         '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
+        ''' Naive Bayes Classifier - MAP 
+            K-fold com 5 grupos
+            Taxa de erro:  9.59%'''
+
+        ''' Naive Bayes Classifier - Prob/TEO Bayes
+            K-fold com 5 grupos
+            Taxa de erro:  0.55%'''
+
         result = [naive_bayes_prob(atributos_teste[t], atributos_treino, classes_treino)
                   for t in range(atributos_teste.shape[0])]
 

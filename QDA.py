@@ -57,16 +57,6 @@ if __name__ == '__main__':
 
     data_f = f.get_data("data_dermato_03.txt")
 
-    #   Naive Bayes Classifier com todos os atributos
-
-    #   K - fold com 5 grupos
-    #   Taxa de erro:  0.55%
-
-    #   K - fold com 10 grupos
-    #   Taxa de erro: 0.28 %
-
-    #   K - fold com 20 grupos
-    #   Taxa de erro: 0.00 %
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
     '''

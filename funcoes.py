@@ -95,7 +95,7 @@ def deviation(v):
 def z_score(dat):
     v = dat.copy()
     if len(dat.shape) == 1:
-        return [((v[n] - mean(dat)) / np.std(dat)) for n in range(len(v))]
+        return [((v[n] - np.mean(dat)) / np.std(dat)) for n in range(len(v))]
 
     for c in range(v.shape[1]):
         for n in range(v.shape[0]):
