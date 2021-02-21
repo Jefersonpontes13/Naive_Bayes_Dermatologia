@@ -34,7 +34,14 @@ def lda(ts, atr_tr, cls_tr):
 
     cls_p = np.array([cls, np.zeros(len(cls))])
 
-    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=i_atr)
+    cols = []
+    for i in range(atr_tr.shape[1] + 1):
+        if i == atr_tr.shape[1]:
+            cols.append('clas')
+        else:
+            cols.append(str(i))
+
+    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=cols)
 
     cov = np.cov(df.values.T[:df.shape[1] - 1])
 

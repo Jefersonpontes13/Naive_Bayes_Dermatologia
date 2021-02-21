@@ -57,7 +57,7 @@ if __name__ == '__main__':
     vet_media_atr = f.mean(atributos)
     vet_variancia_atr = f.variance(atributos)
     mat_covariancia = f.mat_covarience(atributos)
-    mat_correlacao = f.mat_corelation(atributos)
+    mat_correlacao = f.mat_corelation(data)
 
     x = np.arange(mat_correlacao.shape[0])
     y = np.arange(mat_correlacao.shape[0])

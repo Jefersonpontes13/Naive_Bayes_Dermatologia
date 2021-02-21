@@ -79,15 +79,24 @@ def lda(ts, atr_tr, cls_tr):
 
     cls_p = np.array([cls, np.zeros(len(cls))])
 
-    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=i_atr)
+    cols = []
+    for i in range(atr_tr.shape[1] + 1):
+        if i == atr_tr.shape[1]:
+            cols.append('clas')
+        else:
+            cols.append(str(i))
 
-    cov = np.cov(df.values.T[:df.shape[1] - 1])
+    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=cols)
+
+    if atr_tr.shape[1] == 1:
+        cov = np.array([[np.cov(df.values.T[:df.shape[1] - 1])]])
+    else:
+        cov = np.cov(df.values.T[:df.shape[1] - 1])
 
     for cl in range(cls_p.shape[1]):
         c_i = df[df.clas == cls_p[0][cl]].values.T[:df.shape[1] - 1]
         m_i = mean(c_i)
-
-        cls_p[1][cl] = (ts - m_i).T @ np.linalg.pinv(cov) @ (ts - m_i)
+        cls_p[1][cl] = ((ts - m_i).T @ np.linalg.inv(cov) @ (ts - m_i))[0][0]
 
     cl_tst = 0
     for i in range(cls_p.shape[1]):
@@ -97,7 +106,7 @@ def lda(ts, atr_tr, cls_tr):
     return cls_p[0][cl_tst]
 
 
-def cda(atr, cls):
+def cda(atr, cls, nw):
 
     mf = mean(atr.T)
 
@@ -125,49 +134,11 @@ def cda(atr, cls):
 
     a_val, a_vet = eig(inv(sw) @ sb)
 
-    return a_vet[:len(classes) - 1]
+    #   return a_vet[:len(classes) - 5]
+    return a_vet[:nw]
 
 
 if __name__ == '__main__':
-    '''
-    #   data = np.vstack((z_score(data.T[:34]), data.T[34])).T
-    data = z_score(data)
-
-    i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
-             '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
-    df = pd.DataFrame(data, columns=i_atr)
-
-    classes = []
-
-    for cl in range(df.shape[0]):
-        if cl == 0:
-            classes.append(df.values.T[df.shape[1] - 1][cl])
-        elif sum([df.values.T[df.shape[1] - 1][cl] == classes[i] for i in range(len(classes))]) == 0:
-            classes.append(df.values.T[df.shape[1] - 1][cl])
-    np.array(classes).sort()
-
-    c1 = df[df.clas == classes[0]].values.T[:34]
-    c2 = df[df.clas == classes[1]].values.T[:34]
-
-    m1 = mean(c1)
-    m2 = mean(c2)
-
-    s1 = mat_scarter(c1)
-    s2 = mat_scarter(c2)
-
-    sw = s1 + s2
-
-    sb = (m1 - m2)@(m1 - m2).T
-
-    a_val, a_vet = eig(pinv(sw) @ sb)
-
-    w = 0
-    for i in range(a_val.shape[0]):
-        if a_val[i] > a_val[w]:
-            w = i
-
-    w = np.array([a_vet[w]])
-    '''
 
     data_f = get_data("data_dermato_03.txt")
 
@@ -199,10 +170,21 @@ if __name__ == '__main__':
     atributos_teste = atributos[int(atributos.shape[0] * tt[0] / 100):]
     classes_teste = classes[int(atributos.shape[0] * tt[0] / 100):]
 
-    w = cda(atributos_treino, classes_treino)
+    n_w = 5
 
-    atributos_treino_p = w @ atributos_treino.T
+    results = []
 
-    atributos_teste_p = w @ atributos_teste.T
+    for v_n_w in range(n_w):
 
-    print("Hi")
+        w = cda(atributos_treino, classes_treino, v_n_w + 1)
+
+        atributos_treino_p = (w @ atributos_treino.T).T
+
+        atributos_teste_p = (w @ atributos_teste.T).T
+
+        result = [lda(atributos_teste_p[t], atributos_treino_p, classes_treino) for t in range(atributos_teste_p.shape[0])]
+
+        results.append((sum(classes_teste.T[0] == result) / classes_teste.shape[0]) * 100)
+
+    for i in range(n_w):
+        print(f'{i + 1} Projeções - Acerto: {results[i]}')
