@@ -100,11 +100,6 @@ if __name__ == '__main__':
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'clas']
     '''
-
-    '''
-    #   Naive Bayes Classifier
-    #   K - fold com 5 grupos
-    #   Taxa de erro:  5.21%'''
     '''
     i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
              '31', '34', 'clas']
@@ -126,7 +121,7 @@ if __name__ == '__main__':
 
     classes = data.T[data.shape[1] - 1:].T
 
-    atributos, classes = shuffle(atributos, classes, random_state=0)
+    atributos, classes = shuffle(atributos, classes)
 
     #  Quantidade de grupos no K-fold
     k = 5
@@ -158,8 +153,7 @@ if __name__ == '__main__':
             classes_treino = classes[:k_f * (atributos.shape[0] // k)]
         else:
             atributos_treino[:k_f * (atributos.shape[0] // k)] = atributos[:k_f * (atributos.shape[0] // k)]
-            atributos_treino[k_f * (atributos.shape[0] // k):] = atributos[
-                                                                     (k_f + 1) * (atributos.shape[0] // k):]
+            atributos_treino[k_f * (atributos.shape[0] // k):] = atributos[(k_f + 1) * (atributos.shape[0] // k):]
 
             classes_treino[:k_f * (atributos.shape[0] // k)] = classes[:k_f * (atributos.shape[0] // k)]
             classes_treino[k_f * (atributos.shape[0] // k):] = classes[(k_f + 1) * (atributos.shape[0] // k):]
@@ -167,7 +161,7 @@ if __name__ == '__main__':
         '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
         ''' Naive Bayes Classifier - MAP 
             K-fold com 5 grupos
-            Taxa de erro:  9.59%'''
+            Taxa de erro:  10.68%'''
 
         ''' Naive Bayes Classifier - Prob/TEO Bayes
             K-fold com 5 grupos
@@ -182,3 +176,5 @@ if __name__ == '__main__':
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
     print(f'\nNaive Bayes Classifier \nK-fold com {k} grupos\nTaxa de erro: {f.mean(k_f_results) * 100: .2f}%')
+    print(k_f_results)
+

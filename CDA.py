@@ -67,6 +67,39 @@ def mean(m):
     return np.array([[np.mean(v) for v in m]]).T
 
 
+def npc(ts, atr_tr, cls_tr):
+    cls = []
+    for el in range(len(cls_tr)):
+        if el == 0:
+            cls.append(cls_tr.T[0][el])
+        else:
+            if sum([cls_tr[el] == cls[i] for i in range(len(cls))]) == 0:
+                cls.append(cls_tr.T[0][el])
+
+    cls_p = np.array([cls, np.zeros(len(cls))])
+
+    cols = []
+    for i in range(atr_tr.shape[1] + 1):
+        if i == atr_tr.shape[1]:
+            cols.append('clas')
+        else:
+            cols.append(str(i))
+
+    df = pd.DataFrame(np.vstack((atr_tr.T, cls_tr.T)).T, columns=cols)
+
+    for cl in range(cls_p.shape[1]):
+        c_i = df[df.clas == cls_p[0][cl]].values.T[:df.shape[1] - 1]
+        m_i = mean(c_i).T[0]
+        cls_p[1][cl] = np.sqrt(sum((ts - m_i) ** 2))
+
+    cl_tst = 0
+    for i in range(cls_p.shape[1]):
+        if cls_p[1][i] < cls_p[1][cl_tst]:
+            cl_tst = i
+
+    return cls_p[0][cl_tst]
+
+
 def lda(ts, atr_tr, cls_tr):
     ts = np.array([ts]).T
     cls = []
@@ -134,20 +167,25 @@ def cda(atr, cls, nw):
 
     a_val, a_vet = eig(inv(sw) @ sb)
 
-    #   return a_vet[:len(classes) - 5]
     return a_vet[:nw]
 
 
 if __name__ == '__main__':
 
     data_f = get_data("data_dermato_03.txt")
-    '''
+
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
-    
+    '''    
     i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
-             '31', '34', 'clas']'''
+             '31', '34', 'clas']
     i_atr = ['20', '22', 'clas']
+
+    i_atr = ['2', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
+    i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '19', '20', '21', '22', '23', '24', '26', '28', '30', '31',
+             'clas']
+
+    i_atr = ['7', '15', '30', '31', 'clas']'''
 
     data = []
 
@@ -164,7 +202,7 @@ if __name__ == '__main__':
 
     classes = data.T[data.shape[1] - 1:].T
 
-    atributos, classes = shuffle(atributos, classes, random_state=0)
+    atributos, classes = shuffle(atributos, classes)
 
     tt = [70, 30]
 
@@ -176,19 +214,15 @@ if __name__ == '__main__':
 
     n_w = 5
 
-    results = []
+    w = cda(atributos_treino, classes_treino, n_w)
 
-    for v_n_w in range(n_w):
+    atributos_treino_p = (w @ atributos_treino.T).T
 
-        w = cda(atributos_treino, classes_treino, v_n_w + 1)
+    atributos_teste_p = (w @ atributos_teste.T).T
 
-        atributos_treino_p = (w @ atributos_treino.T).T
-
-        atributos_teste_p = (w @ atributos_teste.T).T
-
-        result = [lda(atributos_teste_p[t], atributos_treino_p, classes_treino) for t in range(atributos_teste_p.shape[0])]
-
-        results.append((sum(classes_teste.T[0] == result) / classes_teste.shape[0]) * 100)
-
-    for i in range(n_w):
-        print(f'{i + 1} Projeções - Acerto: {results[i]}')
+    result = [npc(atributos_teste_p[t], atributos_treino_p, classes_treino) for t in range(atributos_teste_p.shape[0])]
+    '''
+    Resultado está variando muito, o acerto varia muito, é provável que a escolha de um conjunto de atributos melhor
+    otimize o resultado
+    '''
+    print(f'{n_w} Projeções - Acerto: {((sum(classes_teste.T[0] == result) / classes_teste.shape[0]) * 100): .2f}%')

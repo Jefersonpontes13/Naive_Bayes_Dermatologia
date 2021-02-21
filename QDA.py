@@ -4,16 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
 
-
-def z_score(dat):
-    v = dat.copy()
-    if len(dat.shape) == 1:
-        return [((v[n] - mean(dat)) / np.std(dat)) for n in range(len(v))]
-
-    for cl in range(v.shape[1]):
-        for n in range(v.shape[0]):
-            v.T[cl][n] = (dat.T[cl][n] - mean(dat.T[cl])) / np.std(dat.T[cl])
-    return v
+'''Vetor das médias dos atrubutos'''
 
 
 def mean(m):
@@ -21,6 +12,8 @@ def mean(m):
         return np.mean(m)
     return np.array([[np.mean(v) for v in m]]).T
 
+
+'''QDA lcassifier'''
 
 def qda(ts, atr_tr, cls_tr):
     ts = np.array([ts]).T
@@ -60,24 +53,13 @@ if __name__ == '__main__':
     i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
              '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 'clas']
     '''
-
-    #   Naive Bayes Classifier 
-    #   K-fold com 10 grupos
-    #   Taxa de erro:  0.82%
-
-    i_atr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
-             '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'clas']
+    i_atr = ['1', '2', '3', '4', '5', '7', '10', '11', '13', '14', '15', '16', '17', '18', '19', '21', '23', '24', '26',
+             '28', '32', '34', 'clas']
+    
     '''
-
-    '''
-    #   Naive Bayes Classifier
-    #   K - fold com 5 grupos
-    #   Taxa de erro:  5.21%'''
     '''
     i_atr = ['1', '2', '3', '7', '9', '10', '14', '15', '16', '19', '20', '21', '22', '23', '24', '26', '28', '30',
              '31', '34', 'clas']
-
-
     '''
     #   i_atr = ['1', '2', '3', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
     #   i_atr = ['2', '4', '5', '11', '13', '14', '15', '17', '18', '32', 'clas']
@@ -96,7 +78,7 @@ if __name__ == '__main__':
 
     classes = data.T[data.shape[1] - 1:].T
 
-    atributos, classes = shuffle(atributos, classes, random_state=0)
+    atributos, classes = shuffle(atributos, classes)
 
     #  Quantidade de grupos no K-fold
     k = 5
@@ -141,6 +123,8 @@ if __name__ == '__main__':
         '''Verifica a taxa de erro e armazena em cada rodada do k-fold'''
         k_f_results[k_f] = sum([0 == i for i in [classes_teste[i] == result[i] for i in
                                                  range(len(classes_teste))]]) / len(classes_teste)
+        print('\n')
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
     print(f'\nNaive Bayes Classifier \nK-fold com {k} grupos\nTaxa de erro: {f.mean(k_f_results) * 100: .2f}%')
+    print(k_f_results)

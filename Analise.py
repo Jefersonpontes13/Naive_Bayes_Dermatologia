@@ -57,7 +57,7 @@ if __name__ == '__main__':
     vet_media_atr = f.mean(atributos)
     vet_variancia_atr = f.variance(atributos)
     mat_covariancia = f.mat_covarience(atributos)
-    mat_correlacao = f.mat_corelation(data)
+    mat_correlacao = f.mat_corelation(atributos)
 
     x = np.arange(mat_correlacao.shape[0])
     y = np.arange(mat_correlacao.shape[0])
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     im = ax.imshow(
-        [[abs(mat_correlacao[li][c]) for c in range(mat_correlacao.shape[1])] for li in range(mat_correlacao.shape[0])])
+        [[mat_correlacao[li][c] for c in range(mat_correlacao.shape[1])] for li in range(mat_correlacao.shape[0])])
 
     ax.set_xticks(np.arange(len(x)))
     ax.set_yticks(np.arange(len(y)))
@@ -81,5 +81,5 @@ if __name__ == '__main__':
 
     ax.set_title("Matriz de Correlação")
     fig.tight_layout()
-    plt.savefig('correlacao.pdf')
+    plt.savefig('matriz_de_correlacao.pdf')
     plt.show()

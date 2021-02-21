@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     classes = data.T[data.shape[1] - 1:].T
 
-    atributos, classes = shuffle(atributos, classes, random_state=0)
+    atributos, classes = shuffle(atributos, classes)
 
     #  Quantidade de grupos no K-fold
     k = 5
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         '''Classifica as amostras de teste, e armazena os resultados no vetor result'''
         ''' LDA Classifier 
             K-fold com 5 grupos
-            Taxa de erro:  0.82%'''
+            Taxa de erro:  1.92%'''
         result = [lda(atributos_teste[t], atributos_treino, classes_treino)
                   for t in range(atributos_teste.shape[0])]
 
@@ -137,3 +137,5 @@ if __name__ == '__main__':
 
     '''Imprime a média das taxas de erro das rodadas do k-fold'''
     print(f'\nLDA Classifier \nK-fold com {k} grupos\nTaxa de erro: {f.mean(k_f_results) * 100: .2f}%')
+    print(k_f_results)
+
