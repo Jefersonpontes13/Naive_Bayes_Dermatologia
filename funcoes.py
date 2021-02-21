@@ -99,7 +99,7 @@ def z_score(dat):
 
     for c in range(v.shape[1]):
         for n in range(v.shape[0]):
-            v.T[c][n] = (dat.T[c][n] - mean(dat.T[c])) / np.std(dat.T[c])
+            v.T[c][n] = (dat.T[c][n] - np.mean(dat.T[c])) / np.std(dat.T[c])
     return v
 
 
